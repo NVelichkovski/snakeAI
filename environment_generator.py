@@ -1,14 +1,20 @@
 import numpy as np
 
-
 class Cell:
-    BLOCK_CELL = -1
-    EMPTY_CELL = 0
-    SNAKE_BODY = 1
-    SNAKE_HEAD = 2
-    FOOD = 3
+    # BGR FORMAT
+    BLOCK_CELL = (105, 105, 105)
+    EMPTY_CELL = (0, 0, 0)
+    SNAKE_BODY = (240, 128, 128)
+    SNAKE_HEAD = (128, 0, 0)
+    FOOD = (173, 255, 47)
 
-    CELL_REPRESENTATION = {BLOCK_CELL: ':', EMPTY_CELL:' ', SNAKE_BODY: 'O', SNAKE_HEAD: '@', FOOD: 'G'}
+    BLOCK_CELL = (105, 105, 105)
+    EMPTY_CELL = (0, 0, 0)
+    SNAKE_BODY = (128, 128, 240)
+    SNAKE_HEAD = (0, 0, 128)
+    FOOD = (47, 255, 173)
+
+    CELL_REPRESENTATION = {BLOCK_CELL: ':', EMPTY_CELL: ' ', SNAKE_BODY: 'O', SNAKE_HEAD: '@', FOOD: 'G'}
 
 class Environment:
 
@@ -31,14 +37,16 @@ class Environment:
 
         self.food = []
         self.occupied_cells = {}
+
+        # TODO: Create Agent class and add it to the self.snakes
         self.snakes = {
 
         }
 
     def reset(self):
         boundaries_offset = 2 if self.with_boundaries else 0
-        self.matrix = np.zeros((self.width + boundaries_offset, self.height + boundaries_offset))
-        for i in range(2, self.width-2, 2):
+        self.matrix = np.zeros((self.width + boundaries_offset, self.height + boundaries_offset, 3), dtype=np.uint8)
+        for i in range(2, 2 + self.num_agents*2, 2):
             self.matrix[1][i] = Cell.SNAKE_BODY
             self.matrix[2][i] = Cell.SNAKE_HEAD
             self.occupied_cells[(1, i)] = Cell.SNAKE_BODY
@@ -77,13 +85,16 @@ class Environment:
             self.occupied_cells[(row, column)] = Cell.FOOD
             self.food.append((row, column))
 
-    def print(self):
+    def __str__(self):
+        return_str = ""
         for row in self.matrix:
             for cell in row:
-                print(Cell.CELL_REPRESENTATION[cell], end='')
-            print()
+                return_str += str(Cell.CELL_REPRESENTATION[(cell[0], cell[1], cell[2])])
+            return_str += '\n'
+        return return_str
 
+    def print(self):
+        print(self)
 
-env = Environment(10, 10, 3)
-env.reset()
-env.print()
+    def step(self, actions):
+        pass
