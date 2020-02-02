@@ -19,13 +19,13 @@ class Environment:
                     max_num_agents > 1
                 """
             )
+        self.with_boundaries = with_boundaries
         self.width = width
         self.height = height
         self.max_num_agents = max_num_agents
         self.num_agents = self.max_num_agents if self.max_num_agents * 2 < self.width + 2 else (self.width - 2) // 2
         self.num_active_agents = self.num_agents
         self.matrix = None
-        self.with_boundaries = with_boundaries
 
         self.food = set()
         self.occupied_cells: Set[Tuple[int, int]] = {}
@@ -95,7 +95,9 @@ class Environment:
 
     def release_cells(self, cells_to_release: list):
         for cell in cells_to_release:
-            self.occupied_cells[cell] = Cell.EMPTY_CELL
+            self.matrix[cell] = Cell.EMPTY_CELL
+            if cell in self.occupied_cells:
+                self.occupied_cells.pop(cell)
 
     def __str__(self):
         return_str = ""

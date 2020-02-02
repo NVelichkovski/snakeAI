@@ -18,7 +18,7 @@ class EnvRenderer:
         self.img = self.img.resize((500, 500), Image.NONE)
         cv2.namedWindow('SnakeAI', cv2.WINDOW_NORMAL)
         cv2.imshow('SnakeAI', np.array(self.img))
-        cv2.waitKey(delay=20)
+        cv2.waitKey(delay=100)
 
     def destry_window(self):
         cv2.destroyWindow('SnakeAI')
