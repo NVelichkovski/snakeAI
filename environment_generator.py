@@ -1,20 +1,11 @@
 import numpy as np
 
-class Cell:
-    # BGR FORMAT
-    BLOCK_CELL = (105, 105, 105)
-    EMPTY_CELL = (0, 0, 0)
-    SNAKE_BODY = (240, 128, 128)
-    SNAKE_HEAD = (128, 0, 0)
-    FOOD = (173, 255, 47)
+from agent import Snake
 
-    BLOCK_CELL = (105, 105, 105)
-    EMPTY_CELL = (0, 0, 0)
-    SNAKE_BODY = (128, 128, 240)
-    SNAKE_HEAD = (0, 0, 128)
-    FOOD = (47, 255, 173)
+from typing import Dict, Tuple, Set
 
-    CELL_REPRESENTATION = {BLOCK_CELL: ':', EMPTY_CELL: ' ', SNAKE_BODY: 'O', SNAKE_HEAD: '@', FOOD: 'G'}
+from variables import Cell, Actions
+
 
 class Environment:
 
@@ -32,58 +23,79 @@ class Environment:
         self.height = height
         self.max_num_agents = max_num_agents
         self.num_agents = self.max_num_agents if self.max_num_agents * 2 < self.width + 2 else (self.width - 2) // 2
+        self.num_active_agents = self.num_agents
         self.matrix = None
         self.with_boundaries = with_boundaries
 
-        self.food = []
-        self.occupied_cells = {}
+        self.food = set()
+        self.occupied_cells: Set[Tuple[int, int]] = {}
 
-        # TODO: Create Agent class and add it to the self.snakes
-        self.snakes = {
-
-        }
+        self.snakes: Dict[int, Snake] = {i: Snake(i, self) for i in range(self.num_agents)}
 
     def reset(self):
         boundaries_offset = 2 if self.with_boundaries else 0
         self.matrix = np.zeros((self.width + boundaries_offset, self.height + boundaries_offset, 3), dtype=np.uint8)
-        for i in range(2, 2 + self.num_agents*2, 2):
+
+        space_between_snakes = self.width // (self.num_agents + 2)
+
+        num_snakes = None
+        setting_snake_boundaries_offset = 1 if self.with_boundaries else 0
+        for i in range(0 + setting_snake_boundaries_offset, self.width + setting_snake_boundaries_offset,
+                       space_between_snakes):
+            if num_snakes is None:
+                # Skip the first snake
+                num_snakes = 0
+                continue
+
+            if num_snakes == self.num_agents:
+                # Skip the last snake
+                break
+
             self.matrix[1][i] = Cell.SNAKE_BODY
             self.matrix[2][i] = Cell.SNAKE_HEAD
             self.occupied_cells[(1, i)] = Cell.SNAKE_BODY
             self.occupied_cells[(2, i)] = Cell.SNAKE_HEAD
 
+            self.snakes[num_snakes].body = [(2, i), (1, i)]
+
+            num_snakes += 1
+
         if self.with_boundaries:
             for i in range(self.matrix.shape[1]):
                 self.matrix[0][i] = Cell.BLOCK_CELL
-                self.matrix[self.matrix.shape[0]-1][i] = Cell.BLOCK_CELL
+                self.matrix[self.matrix.shape[0] - 1][i] = Cell.BLOCK_CELL
                 self.occupied_cells[(0, i)] = Cell.BLOCK_CELL
-                self.occupied_cells[(self.matrix.shape[0]-1, i)] = Cell.BLOCK_CELL
+                self.occupied_cells[(self.matrix.shape[0] - 1, i)] = Cell.BLOCK_CELL
 
             for i in range(self.matrix.shape[0]):
                 self.matrix[i][0] = Cell.BLOCK_CELL
-                self.matrix[i][self.matrix.shape[1]-1] = Cell.BLOCK_CELL
+                self.matrix[i][self.matrix.shape[1] - 1] = Cell.BLOCK_CELL
                 self.occupied_cells[(i, 0)] = Cell.BLOCK_CELL
-                self.occupied_cells[(i, self.matrix.shape[1]-1)] = Cell.BLOCK_CELL
+                self.occupied_cells[(i, self.matrix.shape[1] - 1)] = Cell.BLOCK_CELL
 
             self.occupied_cells[(0, None)] = None
-            self.occupied_cells[(self.matrix.shape[0]-1, None)] = None
+            self.occupied_cells[(self.matrix.shape[0] - 1, None)] = None
             self.occupied_cells[(None, 0)] = None
-            self.occupied_cells[(None, self.matrix.shape[1]-1)] = None
+            self.occupied_cells[(None, self.matrix.shape[1] - 1)] = None
 
         self.set_food()
 
     def set_food(self):
-        while len(self.food) < self.num_agents:
-            row = 0
+        while len(self.food) < self.num_active_agents:
+            row = np.random.randint(1, self.height)
             while (row, None) in self.occupied_cells:
                 row = np.random.randint(1, self.height)
-            column = 0
+            column = np.random.randint(1, self.height)
             while (row, column) in self.occupied_cells:
                 column = np.random.randint(1, self.width)
 
             self.matrix[row, column] = Cell.FOOD
             self.occupied_cells[(row, column)] = Cell.FOOD
-            self.food.append((row, column))
+            self.food.add((row, column))
+
+    def release_cells(self, cells_to_release: list):
+        for cell in cells_to_release:
+            self.occupied_cells[cell] = Cell.EMPTY_CELL
 
     def __str__(self):
         return_str = ""
@@ -96,5 +108,9 @@ class Environment:
     def print(self):
         print(self)
 
-    def step(self, actions):
-        pass
+    def step(self, actions: Dict[int, int] = {}):
+        for handle, snake in self.snakes.items():
+            action = actions[handle] if handle in actions else Actions.FORWARD
+            snake.step(action)
+
+        self.set_food()

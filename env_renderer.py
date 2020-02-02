@@ -7,6 +7,7 @@ from time import sleep
 from matplotlib import pyplot as plt
 
 from environment_generator import Environment
+
 class EnvRenderer:
     def __init__(self, env: Environment):
         self.env = env
@@ -15,5 +16,9 @@ class EnvRenderer:
     def render(self):
         self.img = Image.fromarray(self.env.matrix, 'RGB')
         self.img = self.img.resize((500, 500), Image.NONE)
-        cv2.imshow('', np.array(self.img))
-        cv2.waitKey(delay=0)
+        cv2.namedWindow('SnakeAI', cv2.WINDOW_NORMAL)
+        cv2.imshow('SnakeAI', np.array(self.img))
+        cv2.waitKey(delay=20)
+
+    def destry_window(self):
+        cv2.destroyWindow('SnakeAI')

@@ -1,4 +1,4 @@
-from constants import Direction, Status, Actions, Cell
+from variables import Direction, Status, Actions, Cell
 from environment_generator import *
 
 class Snake:
