@@ -6,7 +6,7 @@ from utils import euclidean_distance, new_position
 from variables import Status, Cell
 
 for _ in range(1):
-    env = Environment(20, 20, 2)
+    env = Environment(20, 20, 2, with_boundaries=False)
     env.reset()
     renderer = EnvRenderer(env)
 
@@ -20,7 +20,8 @@ for _ in range(1):
                 snake_pos = snake.body[0]
                 snake_direction = snake.direction
 
-                new_positions = {action: new_position(snake_pos, snake_direction, action) for action in range(-1, 2)}
+                new_positions = {action: new_position(snake_pos, snake_direction, action, env.matrix) for action in
+                                 range(-1, 2)}
                 actions = []
                 for action in range(-1, 2):
                     if (env.matrix[new_positions[action]] == Cell.EMPTY_CELL).all() or (
