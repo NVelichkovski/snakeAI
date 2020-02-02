@@ -6,7 +6,7 @@ from utils import euclidean_distance, new_position
 from variables import Status, Cell
 
 for _ in range(1):
-    env = Environment(20, 20, 2, with_boundaries=False)
+    env = Environment(20, 20, 2)
     env.reset()
     renderer = EnvRenderer(env)
 
