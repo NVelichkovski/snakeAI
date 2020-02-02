@@ -24,6 +24,8 @@ class Snake:
         """
             return None if snake hit occupied cell else returns snake body
         """
+        if self.status is Status.DEAD:
+            return None
         head = self.body[0]
         offset_i, offset_j = Actions.COORDINATES_OFFSET[self.direction][action]
         head = ((head[0] + offset_i) % self.env.height, (head[1] + offset_j) % self.env.width)
@@ -33,19 +35,18 @@ class Snake:
 
         self.previous_action = action
 
-        if (self.env.matrix[head] == Cell.FOOD).all():
-            self.body.append(released_cell)
-            self.env.food.remove(head)
-            self.env.matrix[self.body[0]] = Cell.SNAKE_HEAD
-            self.env.matrix[self.body[1]] = Cell.SNAKE_BODY
-
         if (self.env.matrix[head] == Cell.SNAKE_HEAD).all():
             self.body.append(released_cell)
             for snake in self.env.snakes.values():
                 if snake.body[0] == head:
                     snake.kill_snake()
+        elif (self.env.matrix[head] == Cell.FOOD).all():
+            self.body.append(released_cell)
+            self.env.food.remove(head)
+            self.env.matrix[self.body[0]] = Cell.SNAKE_HEAD
+            self.env.matrix[self.body[1]] = Cell.SNAKE_BODY
 
-        if (self.env.matrix[head] == Cell.EMPTY_CELL).all():
+        elif (self.env.matrix[head] == Cell.EMPTY_CELL).all():
             self.env.matrix[self.body[0]] = Cell.SNAKE_HEAD
             self.env.matrix[self.body[1]] = Cell.SNAKE_BODY
             self.env.release_cells([released_cell])
@@ -54,4 +55,5 @@ class Snake:
             self.body.append(released_cell)
             self.body.pop(0)
             self.kill_snake()
+        self.direction = (self.direction + action) % 4
         return self.body

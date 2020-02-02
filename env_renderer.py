@@ -8,6 +8,7 @@ from matplotlib import pyplot as plt
 
 from environment_generator import Environment
 
+
 class EnvRenderer:
     def __init__(self, env: Environment):
         self.env = env
