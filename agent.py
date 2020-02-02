@@ -38,6 +38,8 @@ class Snake:
         if (self.env.matrix[head] == Cell.SNAKE_HEAD).all():
             self.body.append(released_cell)
             for snake in self.env.snakes.values():
+                if snake.status is Status.DEAD:
+                    continue
                 if snake.body[0] == head:
                     snake.kill_snake()
         elif (self.env.matrix[head] == Cell.FOOD).all():
@@ -55,5 +57,6 @@ class Snake:
             self.body.append(released_cell)
             self.body.pop(0)
             self.kill_snake()
+
         self.direction = (self.direction + action) % 4
         return self.body
