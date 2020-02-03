@@ -1,7 +1,7 @@
 
 class Status:
-    ACTIVE = 0
     DEAD = 1
+    ACTIVE = 0
 
 
 class Direction:

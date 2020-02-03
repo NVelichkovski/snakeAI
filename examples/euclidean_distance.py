@@ -1,12 +1,12 @@
 import numpy as np
 
 from environment.env_renderer import EnvRenderer
-from environment.environment_generator import Environment
+from environment.environment_generator import SnakeMaze
 from utils import euclidean_distance, new_position
 from environment.variables import Status, Cell
 
 for _ in range(1):
-    env = Environment(30, 30, 2)
+    env = SnakeMaze(30, 30, 2)
     env.reset()
     renderer = EnvRenderer(env)
 

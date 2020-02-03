@@ -3,9 +3,36 @@ from environment.environment_generator import *
 
 
 class Snake:
+    """
+    Agent class.
+
+    A snake object defines a single snake on the environment. Each one is identified by a handle. The body is a list
+    representing the cells that the snake occupies where the first cell is the snake's head. It can be faced in one
+    of the following directions:
+        - 0: North
+        - 1: East
+        - 2: South
+        - 3: West
+
+    And could be:
+        - 0: Dead
+        - 1: Active
+
+    For now, the speed is constant.
+    """
+
     def __init__(self, handle, env, direction=Direction.SOUTH, speed=1, body=[]):
+        """
+        Constructor for Snake object
+
+        :param handle: int
+        :param env: Environment
+        :param direction: int, Optional
+        :param speed: int
+        :param body: Optional
+        """
         self.handle = handle
-        self.env: Environment = env
+        self.env: SnakeMaze = env
 
         self.direction = direction
         self.speed = speed
@@ -16,6 +43,10 @@ class Snake:
         self.status = Status.ACTIVE
 
     def kill_snake(self):
+        """
+        Release the cells occupied by the snake and update the snake's status.
+        :return: None
+        """
         self.status = Status.DEAD
         self.env.release_cells(self.body)
         self.env.num_active_agents -= 1
@@ -23,7 +54,15 @@ class Snake:
 
     def step(self, action):
         """
-            return None if snake hit occupied cell else returns snake body
+        Step the agent
+
+        Make the provided action and update the matrix. If the maze is without boundaries the step handles transporting
+        the snake from one side of the maze to the other.
+
+        :param action: int
+            The action that needs to be performed
+        :return: list or None
+            Returns the snake's body or None if the snake hits occupied cell
         """
         if self.status is Status.DEAD:
             return None
