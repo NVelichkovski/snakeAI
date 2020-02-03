@@ -1,5 +1,6 @@
-from variables import Direction, Status, Actions, Cell
-from environment_generator import *
+from environment.variables import Direction, Status, Actions, Cell
+from environment.environment_generator import *
+
 
 class Snake:
     def __init__(self, handle, env, direction=Direction.SOUTH, speed=1, body=[]):

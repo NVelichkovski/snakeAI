@@ -1,9 +1,9 @@
 import numpy as np
-from agent import Snake
+from environment.agent import Snake
 
-from typing import Dict, Tuple, Set
+from typing import Dict
 
-from variables import Cell, Actions
+from environment.variables import Cell, Actions
 
 
 class Environment:

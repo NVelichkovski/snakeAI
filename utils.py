@@ -1,7 +1,7 @@
 from math import sqrt
 from typing import Tuple
 
-from variables import Actions
+from environment.variables import Actions
 
 
 def new_position(position, direction, action, matrix):

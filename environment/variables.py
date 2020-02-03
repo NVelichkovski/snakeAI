@@ -49,11 +49,13 @@ class Cell:
     # FOOD = (173, 255, 47)
 
     # RGB FORMAT
-    BLOCK_CELL = (105, 105, 105)
-    EMPTY_CELL = (0, 0, 0)
+    BLOCK_CELL = (79, 79, 47)
+
+    EMPTY_CELL = (0, 0, 0)  # IT HAS TO BE ZERO!
+    # The matrix is initialized as a zero matrix with the shape of [width, height, color_channels]
+
     SNAKE_BODY = (128, 128, 240)
     SNAKE_HEAD = (0, 0, 128)
     FOOD = (47, 255, 173)
 
     CELL_REPRESENTATION = {BLOCK_CELL: ':', EMPTY_CELL: ' ', SNAKE_BODY: 'O', SNAKE_HEAD: '@', FOOD: 'G'}
-
