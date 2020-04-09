@@ -1,5 +1,5 @@
-from environment.variables import Direction, Status, Actions, Cell
-from environment.environment_generator import *
+from environment.variables import Direction, Status, Actions, CellRenderEnc, Cell
+from environment.environment import *
 
 
 class Snake:
@@ -75,22 +75,28 @@ class Snake:
 
         self.previous_action = action
 
-        if (self.env.matrix[head] == Cell.SNAKE_HEAD).all():
+        if self.env.matrix[head] == Cell.SNAKE_HEAD:
             self.body.append(released_cell)
             for snake in self.env.snakes.values():
                 if snake.status is Status.DEAD:
                     continue
                 if snake.body[0] == head:
                     snake.kill_snake()
-        elif (self.env.matrix[head] == Cell.FOOD).all():
+        elif self.env.matrix[head] == Cell.FOOD:
             self.body.append(released_cell)
             self.env.food.remove(head)
-            self.env.matrix[self.body[0]] = Cell.SNAKE_HEAD
-            self.env.matrix[self.body[1]] = Cell.SNAKE_BODY
 
-        elif (self.env.matrix[head] == Cell.EMPTY_CELL).all():
-            self.env.matrix[self.body[0]] = Cell.SNAKE_HEAD
-            self.env.matrix[self.body[1]] = Cell.SNAKE_BODY
+            self.env.update_matrices(*self.body[0], 'SNAKE_HEAD')
+            self.env.update_matrices(*self.body[1], 'SNAKE_BODY')
+            self.env.snake_matrices[self.handle][self.body[0]] = CellRenderEnc.MY_SNAKE_HEAD
+            self.env.snake_matrices[self.handle][self.body[1]] = CellRenderEnc.MY_SNAKE_BODY
+
+        elif (self.env.matrix[head] == CellRenderEnc.EMPTY_CELL).all():
+            self.env.update_matrices(*self.body[0], 'SNAKE_HEAD')
+            self.env.update_matrices(*self.body[1], 'SNAKE_BODY')
+            self.env.snake_matrices[self.handle][self.body[0]] = CellRenderEnc.MY_SNAKE_HEAD
+            self.env.snake_matrices[self.handle][self.body[1]] = CellRenderEnc.MY_SNAKE_BODY
+
             self.env.release_cells([released_cell])
 
         else:

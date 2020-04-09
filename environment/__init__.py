@@ -1,1 +1,1 @@
-__all__ = ['agent', 'env_renderer', 'environment_generator', 'variables']
+__all__ = ['agent', 'env_renderer', 'environment', 'variables']

@@ -1,14 +1,14 @@
 import numpy as np
 
-from environment.env_renderer import EnvRenderer
-from environment.environment_generator import SnakeMaze
+from environment.env_renderer import CV2Renderer
+from environment.environment import SnakeMaze
 from utils import euclidean_distance, new_position
-from environment.variables import Status, Cell
+from environment.variables import Status, CellRenderEnc
 
 for _ in range(1):
-    env = SnakeMaze(30, 30, 2)
+    env = SnakeMaze(50, 50, 2)
     env.reset()
-    renderer = EnvRenderer(env)
+    renderer = CV2Renderer(env)
 
     while env.num_active_agents is not 0:
         actions_dict = {}
@@ -24,8 +24,8 @@ for _ in range(1):
                                  range(-1, 2)}
                 actions = []
                 for action in range(-1, 2):
-                    if (env.matrix[new_positions[action]] == Cell.EMPTY_CELL).all() or (
-                            env.matrix[new_positions[action]] == Cell.FOOD).all():
+                    if (env.matrix[new_positions[action]] == CellRenderEnc.EMPTY_CELL).all() or (
+                            env.matrix[new_positions[action]] == CellRenderEnc.FOOD).all():
                         actions.append(euclidean_distance(new_positions[action], food_pos))
                     else:
                         actions.append(env.matrix.shape[0] * env.matrix.shape[1])

@@ -6,7 +6,7 @@ from datetime import datetime
 from PIL import Image
 
 
-class EnvRenderer:
+class CV2Renderer:
     """
     Renderer for the SnakeMaze
 
@@ -45,7 +45,7 @@ class EnvRenderer:
         :return: Image
             The image generated from the maze
         """
-        self.image = Image.fromarray(self.env.matrix, 'RGB')
+        self.image = Image.fromarray(self.env.snake_matrices[1], 'RGB')
         self.image = self.image.resize((500, 500), Image.NONE)
         return self.image
 

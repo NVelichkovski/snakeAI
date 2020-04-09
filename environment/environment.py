@@ -3,7 +3,7 @@ from environment.agent import Snake
 
 from typing import Dict
 
-from environment.variables import Cell, Actions
+from environment.variables import CellRenderEnc, Actions, Cell
 
 
 class SnakeMaze:
@@ -55,6 +55,7 @@ class SnakeMaze:
         self.num_agents = self.max_num_agents if self.max_num_agents * 2 < self.width + 2 else (self.width - 2) // 2
         self.num_active_agents = self.num_agents
         self.matrix = None
+        self.snake_matrices = None
 
         self.food = set()
 
@@ -62,6 +63,11 @@ class SnakeMaze:
         self.number_of_steps = 0
 
         self.image = None
+
+    def update_matrices(self, i: int, j: int, cell_type):
+        self.matrix[i, j] = Cell.CELL_DICT[cell_type]
+        for snake in self.snake_matrices:
+            snake[i, j] = CellRenderEnc.CELL_DICT[cell_type]
 
     def reset(self):
         """
@@ -74,12 +80,16 @@ class SnakeMaze:
         :return: None
         """
         boundaries_offset = 2 if self.with_boundaries else 0
-        self.matrix = np.zeros((self.width + boundaries_offset, self.height + boundaries_offset, 3), dtype=np.uint8)
+        self.matrix = np.zeros((self.width + boundaries_offset, self.height + boundaries_offset), dtype=np.uint8)
+        self.snake_matrices = np.zeros(
+            (self.num_agents + 1, self.width + boundaries_offset, self.height + boundaries_offset, 3), dtype=np.uint8)
 
         space_between_snakes = self.width // (self.num_agents + 2)
 
         num_snakes = None
         setting_snake_boundaries_offset = 1 if self.with_boundaries else 0
+
+        handle = 0
         for i in range(0 + setting_snake_boundaries_offset, self.width + setting_snake_boundaries_offset,
                        space_between_snakes):
             if num_snakes is None:
@@ -91,21 +101,24 @@ class SnakeMaze:
                 # Skip the last snake
                 break
 
-            self.matrix[1][i] = Cell.SNAKE_BODY
-            self.matrix[2][i] = Cell.SNAKE_HEAD
+            self.update_matrices(1, i, 'SNAKE_HEAD')
+            self.update_matrices(2, i, 'SNAKE_BODY')
+
+            self.snake_matrices[handle][1, i] = CellRenderEnc.MY_SNAKE_HEAD
+            self.snake_matrices[handle][2, i] = CellRenderEnc.MY_SNAKE_BODY
+            handle += 1
 
             self.snakes[num_snakes].body = [(2, i), (1, i)]
             num_snakes += 1
 
         if self.with_boundaries:
             for i in range(self.matrix.shape[1]):
-                self.matrix[0][i] = Cell.BLOCK_CELL
-                self.matrix[self.matrix.shape[0] - 1][i] = Cell.BLOCK_CELL
+                self.update_matrices(0, i, 'BLOCK_CELL')
+                self.update_matrices(self.matrix.shape[0] - 1, i, 'BLOCK_CELL')
 
             for i in range(self.matrix.shape[0]):
-                self.matrix[i][0] = Cell.BLOCK_CELL
-                self.matrix[i][self.matrix.shape[1] - 1] = Cell.BLOCK_CELL
-
+                self.update_matrices(1, 0, 'BLOCK_CELL')
+                self.update_matrices(i, self.matrix.shape[1] - 1, 'BLOCK_CELL')
         self.set_food()
 
     def set_food(self):
@@ -118,11 +131,11 @@ class SnakeMaze:
         while len(self.food) < self.num_active_agents:
             row = np.random.randint(1, self.height)
             column = np.random.randint(1, self.height)
-            while not (self.matrix[(row, column)] == Cell.EMPTY_CELL).all():
+            while not (self.matrix[row, column] == Cell.EMPTY_CELL).all():
                 row = np.random.randint(1, self.height)
                 column = np.random.randint(1, self.height)
 
-            self.matrix[(row, column)] = Cell.FOOD
+            self.update_matrices(row, column, 'FOOD')
             self.food.add((row, column))
 
     def release_cells(self, cells_to_release: list):
@@ -136,13 +149,13 @@ class SnakeMaze:
         for cell in cells_to_release:
             if (self.matrix[cell] == Cell.BLOCK_CELL).all():
                 continue
-            self.matrix[cell] = Cell.EMPTY_CELL
+            self.update_matrices(*cell, 'EMPTY_CELL')
 
     def __str__(self):
         return_str = ""
         for row in self.matrix:
             for cell in row:
-                return_str += str(Cell.CELL_REPRESENTATION[(cell[0], cell[1], cell[2])])
+                return_str += str(Cell.CELL_REPRESENTATION[cell])
             return_str += '\n'
         return return_str
 
