@@ -112,7 +112,7 @@ class SnakeMaze:
                 self.update_matrices(self.matrix.shape[0] - 1, i, 'BLOCK_CELL')
 
             for i in range(self.matrix.shape[0]):
-                self.update_matrices(1, 0, 'BLOCK_CELL')
+                self.update_matrices(i, 0, 'BLOCK_CELL')
                 self.update_matrices(i, self.matrix.shape[1] - 1, 'BLOCK_CELL')
         self.set_food()
 
