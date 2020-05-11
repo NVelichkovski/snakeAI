@@ -14,18 +14,19 @@ class CV2Renderer:
     be stored on disk as images or video.
     """
 
-    def __init__(self, env, delay=50):
+    def __init__(self, env, delay=50, window_size=600):
         """
         Constructor for EnvRenderer object
 
         :param env: Environment
-            The instance of the current environment
+            The instance of the current Snake
         :param delay: int, Optional
             The delay between two frames
         """
         self.env = env
         self.images = []
         self.delay = delay
+        self.window_size = window_size
 
     def record(self, img=None):
         """
@@ -62,6 +63,7 @@ class CV2Renderer:
         img = self.generate_img()
 
         cv2.namedWindow('SnakeAI', cv2.WINDOW_NORMAL)
+        cv2.resizeWindow('SnakeAI', self.window_size, self.window_size)
         cv2.imshow('SnakeAI', np.array(img))
         cv2.waitKey(delay=self.delay)
 
