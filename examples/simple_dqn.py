@@ -57,7 +57,7 @@ class DQN(k.Model):
 env = SnakeMaze(50, 50, 1)
 env.reset()
 
-# TODO: Refactor the environment to keep float32 values
+# TODO: Refactor the environment to keep float32 values, Train the network
 model = DQN(input_shape=env.matrix.shape)
 inp_image = env.matrix.reshape((1, *env.matrix.shape, 1)).astype('float32')
 print(model(inp_image))
