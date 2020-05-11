@@ -10,33 +10,11 @@ class Direction:
     SOUTH = 2
     WEST = 3
 
-
-class Actions:
-    LEFT = -1
-    FORWARD = 0
-    RIGHT = 1
-
     COORDINATES_OFFSET = {
-        Direction.NORTH: {
-            FORWARD: (-1, 0),
-            RIGHT: (0, 1),
-            LEFT: (0, -1)
-        },
-        Direction.EAST: {
-            FORWARD: (0, 1),
-            RIGHT: (1, 0),
-            LEFT: (-1, 0)
-        },
-        Direction.SOUTH: {
-            FORWARD: (1, 0),
-            RIGHT: (0, -1),
-            LEFT: (0, 1)
-        },
-        Direction.WEST: {
-            FORWARD: (0, -1),
-            RIGHT: (-1, 0),
-            LEFT: (1, 0)
-        }
+        NORTH: (-1, 0),
+        EAST: (0, 1),
+        SOUTH: (1, 0),
+        WEST: (0, -1)
     }
 
 

@@ -1,12 +1,12 @@
-from environment.variables import Direction, Status, Actions, CellRenderEnc, Cell
-from environment.environment import *
+from Snake.variables import Direction, Status, CellRenderEnc, Cell
+from Snake.environment import *
 
 
 class Snake:
     """
     Agent class.
 
-    A snake object defines a single snake on the environment. Each one is identified by a handle. The body is a list
+    A snake object defines a single snake on the Snake. Each one is identified by a handle. The body is a list
     representing the cells that the snake occupies where the first cell is the snake's head. It can be faced in one
     of the following directions:
         - 0: North
@@ -38,7 +38,7 @@ class Snake:
         self.speed = speed
         self.body = body
 
-        self.previous_action = None
+        self.previous_direction = None
         self.length = 0
         self.status = Status.ACTIVE
 
@@ -52,7 +52,7 @@ class Snake:
         self.env.num_active_agents -= 1
         self.body = None
 
-    def step(self, action):
+    def step(self, direction):
         """
         Step the agent
 
@@ -66,14 +66,17 @@ class Snake:
         """
         if self.status is Status.DEAD:
             return None
+
+        if ((self.direction + 1) % 4) != direction and ((self.direction - 1) % 4) != direction:
+            direction = self.direction
         head = self.body[0]
-        offset_i, offset_j = Actions.COORDINATES_OFFSET[self.direction][action]
+        offset_i, offset_j = Direction.COORDINATES_OFFSET[direction]
         head = ((head[0] + offset_i) % self.env.height, (head[1] + offset_j) % self.env.width)
 
         self.body.insert(0, head)
         released_cell = self.body.pop(-1)
 
-        self.previous_action = action
+        self.previous_direction = direction
 
         if self.env.matrix[head] == Cell.SNAKE_HEAD:
             self.body.append(released_cell)
@@ -104,5 +107,5 @@ class Snake:
             self.body.pop(0)
             self.kill_snake()
 
-        self.direction = (self.direction + action) % 4
+        self.direction = direction
         return self.body

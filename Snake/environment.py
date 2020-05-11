@@ -1,27 +1,22 @@
 import numpy as np
-from environment.agent import Snake
+from Snake.agent import Snake
 
 from typing import Dict
 
-from environment.variables import CellRenderEnc, Actions, Cell
+from Snake.variables import CellRenderEnc, Cell
 
 
 class SnakeMaze:
     """
-    Snake environment class.
+    Snake Snake class.
 
-    An environment for multi-agent variation of the classic snake game. The goal of the game is to be the last living
+    An Snake for multi-agent variation of the classic snake game. The goal of the game is to be the last living
     snake in the maze. Number of snakes as well as the dimensions of the maze is controlled with the following
     limitation:
         - Width: bigger than 5 since mazes smaller then 5x5 is not practical even for 1 agent
         - Height: bigger or equal then the width since there is no much difference between mazes of 25x50 or 50x25
         - The number of snakes: bigger than one but smaller then width/2. Initially, we need to have at least one cell
                                 space between two snakes.
-
-    Actions allowed in the environment:
-        - -1: Left
-        -  0: Forward
-        -  1: Right
 
     Each time a snake eats a food cell, the snake gets bigger for one.
 
@@ -71,7 +66,7 @@ class SnakeMaze:
 
     def reset(self):
         """
-        Reset the environment.
+        Reset the Snake.
 
         A matrix is constructed by the width and height specified from the attributed in the constructor. Then all
         snakes are equally distributed on the top of the maze facing south. Finally, food is placed on random positions
@@ -159,20 +154,20 @@ class SnakeMaze:
             return_str += '\n'
         return return_str
 
-    def step(self, actions: Dict[int, int] = {}):
+    def step(self, directions: Dict[int, int] = {}):
         """Step the Environment.
 
-        Call the Agent.step for each snake with the action provided in the actions param.
+        Call the Agent.step for each snake with the new direction provided in the directions param.
         If there is no action provided the snake continue Forward.
-        :param actions: Dict[int, int], Optional
+        :param directions: Dict[int, int], Optional
         :return: None
         """
         if self.num_active_agents is 0:
             return
 
         for handle, snake in self.snakes.items():
-            action = actions[handle] if handle in actions else Actions.FORWARD
-            snake.step(action)
+            direction = directions[handle] if handle in directions else snake.direction
+            snake.step(direction)
 
         self.set_food()
         self.number_of_steps += 1
