@@ -1,3 +1,6 @@
+import os
+from datetime import datetime
+
 import numpy as np
 
 from Snake.env_renderer import CV2Renderer
@@ -5,11 +8,12 @@ from Snake.environment import SnakeMaze
 from utils import euclidean_distance, new_position
 from Snake.variables import Status, Cell
 
-env = SnakeMaze(30, 30, 2, with_boundaries=False)
+env = SnakeMaze(20, 20, 1, with_boundaries=True)
 env.reset()
-renderer = CV2Renderer(env)
+renderer = CV2Renderer(env, image_size=(1000, 1000))
 
-while env.num_active_agents is not 0:
+# while env.num_active_agents is not 0:
+for _ in range(50):
     directions_dict = {}
     for handle, snake in env.snakes.items():
 
@@ -42,5 +46,7 @@ while env.num_active_agents is not 0:
     renderer.render()
 
 renderer.destroy_window()
-renderer.save_video('../game_videos')
-renderer.save_images('../game_images')
+
+timestamp = datetime.now().strftime('%d%h%Y__%H%M%S%f')
+renderer.save_video(os.path.join('..', 'game_videos', 'euclidean_distance', timestamp + '.mp4'))
+renderer.save_images(os.path.join('..', 'game_images', 'euclidean_distance', timestamp))

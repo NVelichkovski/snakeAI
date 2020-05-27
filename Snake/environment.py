@@ -75,9 +75,9 @@ class SnakeMaze:
         :return: None
         """
         boundaries_offset = 2 if self.with_boundaries else 0
-        self.matrix = np.zeros((self.width + boundaries_offset, self.height + boundaries_offset), dtype=np.uint8)
+        self.matrix = np.zeros((self.width + boundaries_offset, self.height + boundaries_offset), dtype='float32')
         self.snake_matrices = np.zeros(
-            (self.num_agents + 1, self.width + boundaries_offset, self.height + boundaries_offset, 3), dtype=np.uint8)
+            (self.num_agents + 1, self.width + boundaries_offset, self.height + boundaries_offset, 3), dtype='float32')
 
         space_between_snakes = self.width // (self.num_agents + 2)
 

@@ -41,6 +41,7 @@ class Snake:
         self.previous_direction = None
         self.length = 0
         self.status = Status.ACTIVE
+        self.steps_without_food = -1  # -1 if snake haven't eat a snake
 
     def kill_snake(self):
         """
@@ -85,7 +86,10 @@ class Snake:
                     continue
                 if snake.body[0] == head:
                     snake.kill_snake()
+
         elif self.env.matrix[head] == Cell.FOOD:
+            self.steps_without_food = 0
+
             self.body.append(released_cell)
             self.env.food.remove(head)
 
@@ -108,4 +112,6 @@ class Snake:
             self.kill_snake()
 
         self.direction = direction
+        self.steps_without_food += 0 if self.steps_without_food < 0 else 1
+
         return self.body
