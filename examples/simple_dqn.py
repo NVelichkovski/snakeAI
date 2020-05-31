@@ -134,8 +134,8 @@ def reward(snake, env: SnakeMaze, direction):
         r = 0
         r += env.number_of_steps / 4
         r += 10 if snake.steps_without_food == 1 else 0
-        r -= min([euclidean_distance(snake.body[0], f) for f in env.food])
-        r -= 3 if direction not in [(snake.previous_direction + 1) % 4, (snake.previous_direction - 1) % 4] else 0
+        # r -= min([euclidean_distance(snake.body[0], f) for f in env.food])
+        # r -= 3 if direction not in [(snake.previous_direction + 1) % 4, (snake.previous_direction - 1) % 4] else 0
         return r
 
 
