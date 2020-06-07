@@ -5,15 +5,15 @@ import numpy as np
 
 from Snake.env_renderer import CV2Renderer
 from Snake.environment import SnakeMaze
+from Snake.utils import resize_image
 from utils import euclidean_distance, new_position
 from Snake.variables import Status, Cell
 
-env = SnakeMaze(20, 20, 1, with_boundaries=True)
+env = SnakeMaze(10, 10, 1, with_boundaries=True)
 env.reset()
 renderer = CV2Renderer(env, image_size=(1000, 1000))
 
-# while env.num_active_agents is not 0:
-for _ in range(50):
+while env.num_active_agents != 0:
     directions_dict = {}
     for handle, snake in env.snakes.items():
 
@@ -37,12 +37,13 @@ for _ in range(50):
 
             direction_dist.append(
                 min(directions, key=lambda x: x[1]) if len(directions) else (
-                direction, euclidean_distance(new_positions[direction], food_pos)))
+                    direction, euclidean_distance(new_positions[direction], food_pos)))
 
         best = np.argmin([t[1] for t in direction_dist])
         directions_dict[handle] = direction_dist[best][0]
 
     env.step(directions_dict)
+
     renderer.render()
 
 renderer.destroy_window()

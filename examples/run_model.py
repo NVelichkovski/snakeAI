@@ -1,22 +1,57 @@
-from Snake.env_renderer import CV2Renderer
+import tensorflow.keras as k
+
 from Snake.environment import SnakeMaze
+from Snake.utils import resize_image, save_images
 
-import tensorflow as tf
+import matplotlib.pyplot as plt
+
 import numpy as np
-
 import os
 
-filename = ['..', 'models', 'transfer_learning_dqn', '27May2020__232915330322', 'episode4000']
 
-model = tf.keras.models.load_model(os.path.join(*filename))
-env = SnakeMaze(50, 50, 1, with_boundaries=True)
+def ResNet50(input_shape, num_not_trainable_blocks=4):
+    base_model = k.applications.ResNet50(include_top=False, input_shape=input_shape)
+    base_model.trainable = False
+
+    for l in base_model.layers:
+        if l.name.split("_")[0] == f"conv{num_not_trainable_blocks + 1}":
+            break
+        l.trainable = True
+
+    model = k.Sequential([
+        base_model,
+        k.layers.Flatten(),
+        k.layers.Dense(4096, activation='relu'),
+        k.layers.Dense(2048, activation='relu'),
+        k.layers.Dense(1024, activation='relu'),
+        k.layers.Dense(4, activation='softmax'),
+    ])
+
+    model.build(input_shape=input_shape)
+    return model
+
+
+INPUT_SIZE = (64, 64)
+INPUT_SHAPE = (*INPUT_SIZE, 3)
+
+path_to_weights = os.path.join(
+    "D:/Google Drive/snakeAI/trainings/transfer_learningDQN\ResNet50/05Jun2020__174051835623/models",
+    "episode400")
+model = ResNet50(input_shape=INPUT_SHAPE)
+model.load_weights(path_to_weights)
+
+env = SnakeMaze(10, 10, 1, with_boundaries=False)
 env.reset()
+imgs = []
 
-renderer = CV2Renderer(env, image_size=(122, 122))
-while env.num_active_agents:
-    state = renderer.generate_np_img()
+for _ in range(200):
+    if env.num_active_agents == 0:
+        break
+    imgs.append(env.snake_matrices[0].copy())
+    # plt.imshow(env.snake_matrices[0].astype(np.uint8))
+    # plt.show()
+    state = resize_image(env.snake_matrices[0], INPUT_SIZE)
     direction = np.argmax(model(np.array([state])))
     env.step({0: direction})
-    renderer.render()
 
-renderer.destroy_window()
+save_images(imgs, './del_me')
