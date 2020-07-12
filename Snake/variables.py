@@ -2,6 +2,7 @@
 class Status:
     DEAD = 1
     ACTIVE = 0
+    iter = range(2)
 
 
 class Direction:
@@ -10,6 +11,9 @@ class Direction:
     SOUTH = 2
     WEST = 3
 
+    iter = range(4)
+
+    i = None
     COORDINATES_OFFSET = {
         NORTH: (-1, 0),
         EAST: (0, 1),
@@ -28,6 +32,8 @@ class Cell:
 
     SNAKE_BODY = 2
     SNAKE_HEAD = 3
+
+    iter = [BLOCK_CELL, EMPTY_CELL, FOOD, SNAKE_BODY, SNAKE_HEAD]
 
     CELL_DICT = {
         'BLOCK_CELL': BLOCK_CELL,
@@ -69,6 +75,7 @@ class CellRenderEnc:
 
     FOOD = (47, 255, 173)
 
+    iter = [BLOCK_CELL, EMPTY_CELL, OTHER_SNAKE_BODY, OTHER_SNAKE_HEAD, MY_SNAKE_BODY, MY_SNAKE_HEAD]
     CELL_DICT = {
         'BLOCK_CELL': BLOCK_CELL,
         'EMPTY_CELL': EMPTY_CELL,
