@@ -64,8 +64,8 @@ class SnakeMaze:
 
     def update_matrices(self, i: int, j: int, cell_type):
         self.matrix[i, j] = Cell.CELL_DICT[cell_type]
-        # for snake in self.snake_matrices:
-        #     snake[i, j] = CellRenderEnc.CELL_DICT[cell_type]
+        for snake in self.snake_matrices:
+            snake[i, j] = CellRenderEnc.CELL_DICT[cell_type]
 
     def reset(self):
         """
@@ -173,7 +173,6 @@ class SnakeMaze:
         for handle, snake in self.snakes.items():
             direction = directions[handle] if handle in directions else snake.direction
             snake.step(direction)
-
         self.set_food()
         self.number_of_steps += 1
 
