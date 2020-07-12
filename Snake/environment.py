@@ -52,7 +52,7 @@ class SnakeMaze:
         self.matrix = None
         self.snake_matrices = None
 
-        self.food = set()
+        self.food = []
 
         self.snakes: Dict[int, Snake] = {i: Snake(i, self) for i in range(self.num_agents)}
         self.number_of_steps = 0
@@ -64,8 +64,8 @@ class SnakeMaze:
 
     def update_matrices(self, i: int, j: int, cell_type):
         self.matrix[i, j] = Cell.CELL_DICT[cell_type]
-        for snake in self.snake_matrices:
-            snake[i, j] = CellRenderEnc.CELL_DICT[cell_type]
+        # for snake in self.snake_matrices:
+        #     snake[i, j] = CellRenderEnc.CELL_DICT[cell_type]
 
     def reset(self):
         """
@@ -136,7 +136,7 @@ class SnakeMaze:
                 column = np.random.randint(1, self.height)
 
             self.update_matrices(row, column, 'FOOD')
-            self.food.add((row, column))
+            self.food.append((row, column))
 
     def release_cells(self, cells_to_release: list):
         """
