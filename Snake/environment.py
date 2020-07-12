@@ -22,7 +22,7 @@ class SnakeMaze:
 
     """
 
-    def __init__(self, width, height, max_num_agents, with_boundaries=True, ):
+    def __init__(self, width, height, max_num_agents, with_boundaries=True, cache_size=5):
         """
         SnakeMaze constructor
 
@@ -59,6 +59,9 @@ class SnakeMaze:
 
         self.image = None
 
+        self.cache_size = cache_size
+        self.cache = None
+
     def update_matrices(self, i: int, j: int, cell_type):
         self.matrix[i, j] = Cell.CELL_DICT[cell_type]
         for snake in self.snake_matrices:
@@ -78,6 +81,8 @@ class SnakeMaze:
         self.matrix = np.zeros((self.width + boundaries_offset, self.height + boundaries_offset), dtype='float32')
         self.snake_matrices = np.zeros(
             (self.num_agents + 1, self.width + boundaries_offset, self.height + boundaries_offset, 3), dtype='float32')
+        self.cache = [np.zeros(
+            (self.num_agents + 1, self.width + boundaries_offset, self.height + boundaries_offset, 3), dtype='float32') for _ in range(self.cache_size)]
 
         space_between_snakes = self.width // (self.num_agents + 2)
 
@@ -171,3 +176,7 @@ class SnakeMaze:
 
         self.set_food()
         self.number_of_steps += 1
+
+        if len(self.cache) >= self.cache_size:
+            self.cache.pop(0)
+        self.cache.append(self.snake_matrices.copy())
