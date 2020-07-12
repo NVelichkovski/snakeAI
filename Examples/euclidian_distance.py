@@ -1,3 +1,5 @@
+import sys
+sys.path.append("..")
 from Snake.environment import SnakeMaze
 from Snake.env_renderer import CV2Renderer
 from Snake.utils import euclidean_distance
