@@ -50,23 +50,30 @@ def save_video(images, filepath):
     raise NotImplementedError
 
 
-def save_graph(rolling_avg_reward, rolling_avg_epsilon, graph_path):
+def save_graph(graphing_data, graph_path):
     plt.style.use('fivethirtyeight')
 
-    fig, (ax1, ax2) = plt.subplots(2, 1)
-    ax1.plot(rolling_avg_epsilon, label='Epsilon', color='cornflowerblue')
-    ax2.plot(rolling_avg_reward, label='Reward', color='brown')
+    fig = plt.figure(figsize=(10, 12),)
+    # fig, (ax1, ax2, ax3) = plt.subplots(3, 1, )
+    ax = fig.add_subplot(311)
+    ax.plot(graphing_data['rolling_avg_epsilon'], label='Epsilon', color='cornflowerblue')
+    ax.set_ylabel("Epsilon")
 
-    ax2.set_xlabel("Epoch")
+    ax = fig.add_subplot(312)
+    ax.plot(graphing_data['rolling_avg_reward'], label='Reward', color='brown')
+    ax.set_ylabel("Average Reward \n(over ~50 samples)")
 
-    ax1.set_ylabel("Epsilon")
-    ax2.set_ylabel("Average Reward \n(over ~50 samples)")
+    ax = fig.add_subplot(313)
+    ax.plot(graphing_data['Avg Q'], label='Avg Q', color='brown', linewidth=.5)
+    ax.set_xlabel("Epoch")
+    ax.set_ylabel("Average Q")
 
-    plt.tight_layout()
-    plt.savefig(graph_path)
+    plt.subplots_adjust(top=1)
+    plt.savefig(graph_path + '\\graph.png', )
 
 
-def save_eval(model, episode_number, episode_images, rolling_avg_reward, rolling_avg_epsilon, **kwargs):
+
+def save_eval(model, episode_number, episode_images, graphing_data, **kwargs):
 
     verbose = kwargs['verbose'] if 'verbose' in kwargs else True
     save_images_ = kwargs['save_images'] if 'save_images' in kwargs else False
@@ -109,9 +116,7 @@ def save_eval(model, episode_number, episode_images, rolling_avg_reward, rolling
             print(e)
 
     if save_graph_:
-        graph_path = [training_dir] + ['Reward.png']
-        os.makedirs(os.path.join(*graph_path[:-1]), exist_ok=True)
-        graph_path = os.path.join(*graph_path)
-        save_graph(rolling_avg_reward, rolling_avg_epsilon, graph_path)
+        os.makedirs(os.path.join(*training_dir), exist_ok=True)
+        save_graph(graphing_data, training_dir)
         if verbose:
-            print(f"Graph saved at:", graph_path)
+            print(f"Graphs saved at:", training_dir)
