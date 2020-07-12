@@ -60,15 +60,15 @@ class CV2Renderer:
         """
         img = self.generate_np_img()
 
-        cv2.namedWindow('SnakeAI', cv2.WINDOW_NORMAL)
-        cv2.resizeWindow('SnakeAI', self.window_size, self.window_size)
-        cv2.imshow('SnakeAI', img)
+        cv2.namedWindow('snakeAI', cv2.WINDOW_NORMAL)
+        cv2.resizeWindow('snakeAI', self.window_size, self.window_size)
+        cv2.imshow('snakeAI', img)
         cv2.waitKey(delay=self.delay)
 
         if record:
             self.images.append(img)
 
-    def destroy_window(self, window_name='SnakeAI'):
+    def destroy_window(self, window_name='snakeAI'):
         cv2.destroyWindow(window_name)
 
     def save_images(self, path=None):
@@ -120,8 +120,8 @@ class CV2Renderer:
     def show_cache(self):
         for img in self.images:
             print(img.shape)
-            cv2.namedWindow('SnakeAI Cache', cv2.WINDOW_NORMAL)
-            cv2.resizeWindow('SnakeAI Cache', self.window_size, self.window_size)
-            cv2.imshow('SnakeAI Cache', img)
+            cv2.namedWindow('snakeAI Cache', cv2.WINDOW_NORMAL)
+            cv2.resizeWindow('snakeAI Cache', self.window_size, self.window_size)
+            cv2.imshow('snakeAI Cache', img)
             cv2.waitKey(delay=self.delay)
-        self.destroy_window('SnakeAI Cache')
+        self.destroy_window('snakeAI Cache')
