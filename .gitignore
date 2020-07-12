@@ -294,3 +294,4 @@ dmypy.json
 /trainings/
 /test.py
 /.idea
+/LocalRuns/
