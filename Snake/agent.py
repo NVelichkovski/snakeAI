@@ -1,5 +1,4 @@
 from Snake.variables import Direction, Status, CellRenderEnc, Cell
-from Snake.environment import *
 
 
 class Snake:

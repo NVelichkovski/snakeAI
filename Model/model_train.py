@@ -3,7 +3,7 @@ import os
 import numpy as np
 
 from Snake.environment import SnakeMaze
-from Snake.utils import resize_image, save_images, save_video, save_graph, save_eval
+from Snake.utils import resize_image, save_eval
 from Model.replay_memory import ReplayMemory, Experience
 
 import tensorflow as tf
@@ -21,6 +21,10 @@ def train_step(states, targets, model, optimizer):
         _loss = loss(q, targets)
     grad = tape.gradient(_loss, model.trainable_variables)
     optimizer.apply_gradients(zip(grad, model.trainable_variables))
+
+
+def default_obs(env):
+    np.array(env.cache)
 
 
 def train_dqn(model, optimizer, reward, **kwargs):
@@ -128,25 +132,15 @@ def train_dqn(model, optimizer, reward, **kwargs):
     training_dir = kwargs['training_dir'] if 'training_dir' in kwargs else './'
     comment = kwargs['comment'] if 'comment' in kwargs else ''
     batch_size = kwargs['batch_size'] if 'batch_size' in kwargs else 64
-    
+    get_obs = kwargs['get_observation'] if 'get_observation' in kwargs else lambda env, handle=0: resize_image(
+        env.snake_matrices[handle], image_size)
+    cache_size = kwargs['num_prev_images'] if 'num_prev_images' in kwargs else 5
+
     comment = comment + f"""
 
     _________________________________________________________
     ---------------------------------------------------------
-
-    max_steps_per_episode  --> {max_steps_per_episode}
-    num_episodes           --> {num_episodes}
-    gamma                  --> {gamma}
-    epsilon                --> {epsilon}
-    epsilon_decay          --> {epsilon_decay}
-    min_epsilon            --> {min_epsilon}
-    memory_size            --> {memory_size}
-    boundaries             --> {boundaries}
-    maze_width             --> {maze_width}
-    maze_height            --> {maze_height}
-    max_snakes             --> {max_snakes}
-    path_to_weights        --> {path_to_weights}
-    image_size             --> {image_size}
+    """ + ''.join([f"{key}  --> \n\t{value}\n" for key, value in kwargs.items()]) + """
     _________________________________________________________
     ---------------------------------------------------------
     """
@@ -162,50 +156,60 @@ def train_dqn(model, optimizer, reward, **kwargs):
 
     episode_number = 0
 
-    rolling_avg_reward = np.array([])
-    rolling_avg_epsilon = np.array([])
-
+    graphing_data = {
+        'rolling_avg_reward': np.array([]),
+        'rolling_avg_epsilon': np.array([]),
+        'Avg Q': np.array([]),
+    }
 
     reward_window = np.array([])
 
     memory = ReplayMemory(capacity=memory_size) if (memory_size > 50 and memory_size > batch_size) else None
 
     while num_episodes is None or episode_number < num_episodes:
+
         if verbose:
             print("____________________________________________________________________________________________")
-        is_eval_episode = (episode_number % evaluate_each == 0) or (num_episodes and episode_number == num_episodes - 1)
-        episode_images = []
 
         env = SnakeMaze(
             width=maze_width,
             height=(maze_height if maze_height is not None else maze_width),
             max_num_agents=max_snakes,
-            with_boundaries=boundaries)
+            with_boundaries=boundaries,
+            cache_size=cache_size
+        )
         env.reset()
+
+        is_eval_episode = (episode_number % evaluate_each == 0) or (num_episodes and episode_number == num_episodes - 1)
+
         episode_reward = 0
+        random_actions = []
+        episode_images = []
 
         for _ in range(max_steps_per_episode):
-
             if env.num_active_agents == 0:
                 break
 
-            state = resize_image(env.snake_matrices[0], image_size)
+            state = get_obs(env)
 
             if is_eval_episode and (save_images_ or save_videos_):
                 episode_images.append(state)
 
+            do_random_action = np.random.rand(1) < epsilon
+            random_actions.append(do_random_action)
+
             q = model(state.reshape((-1, *state.shape)))
-            direction = np.random.randint(4) if np.random.rand(1) < epsilon else np.argmax(q)
+            np_q = q.numpy()
+            graphing_data['Avg Q'] = np.append(graphing_data['Avg Q'], np.average(np_q))
+
+            direction = np.random.randint(4) if do_random_action else np.argmax(q)
             env.step({0: direction})
             current_reward = reward(env.snakes[0], env, direction)
-            state2 = resize_image(env.snake_matrices[0], image_size)
+            state2 = get_obs(env)
 
             episode_reward += current_reward
 
-            if reward_window is None:
-                reward_window = np.array([current_reward])
-            else:
-                reward_window = np.append(reward_window, current_reward)
+            reward_window = np.append(reward_window, current_reward)
 
             if memory is not None:
                 memory.push(Experience(state, direction, state2, current_reward))
@@ -229,17 +233,17 @@ def train_dqn(model, optimizer, reward, **kwargs):
 
         if verbose:
             print(f"Episode {episode_number + 1} Done!")
-            print(f"Episode reward: {episode_reward}")
-            print(f"Epsilon: {epsilon}")
+            print(f"Episode reward:           {episode_reward}")
+            print(f"Epsilon:                  {epsilon}")
+            print(f"Number of random actions: {sum(random_actions)}")
             if memory is not None:
                 print(f"Replay Memory size: {len(memory.experiences)}")
 
         if len(reward_window) >= num_rolling_avg_sample:
             rolling_avg = np.mean(reward_window)
             reward_window = np.delete(reward_window, 0)
-            rolling_avg_reward = np.append(rolling_avg_reward, rolling_avg)
-            rolling_avg_epsilon = np.append(rolling_avg_epsilon, epsilon)
-
+            graphing_data['rolling_avg_reward'] = np.append(graphing_data['rolling_avg_reward'], rolling_avg)
+            graphing_data['rolling_avg_epsilon'] = np.append(graphing_data['rolling_avg_epsilon'], epsilon)
 
         epsilon = max(epsilon - epsilon_decay, min_epsilon)
 
@@ -247,7 +251,7 @@ def train_dqn(model, optimizer, reward, **kwargs):
             print()
 
         if is_eval_episode:
-            save_eval(model, episode_number, episode_images, rolling_avg_reward, rolling_avg_epsilon, **kwargs)
+            save_eval(model, episode_number, episode_images, graphing_data, **kwargs)
 
         episode_number += 1
 
