@@ -59,7 +59,7 @@ class Snake:
         Make the provided action and update the matrix. If the maze is without boundaries the step handles transporting
         the snake from one side of the maze to the other.
 
-        :param action: int
+        :param direction: int
             The action that needs to be performed
         :return: list or None
             Returns the snake's body or None if the snake hits occupied cell
@@ -67,8 +67,9 @@ class Snake:
         if self.status is Status.DEAD:
             return None
 
-        if ((self.direction + 1) % 4) != direction and ((self.direction - 1) % 4) != direction:
+        if direction not in [(self.direction + 1) % 4, ((self.direction - 1) % 4)]:
             direction = self.direction
+
         head = self.body[0]
         offset_i, offset_j = Direction.COORDINATES_OFFSET[direction]
         head = ((head[0] + offset_i) % self.env.height, (head[1] + offset_j) % self.env.width)
@@ -76,7 +77,7 @@ class Snake:
         self.body.insert(0, head)
         released_cell = self.body.pop(-1)
 
-        self.previous_direction = direction
+        self.previous_direction = self.direction
 
         if self.env.matrix[head] == Cell.SNAKE_HEAD:
             self.body.append(released_cell)
